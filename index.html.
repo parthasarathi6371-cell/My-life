@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Functional Human Heart Model</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0c2461 0%, #1e3799 100%);
+            color: #fff;
+            overflow: hidden;
+        }
+
+        #container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #ff4757;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #ff6b81;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #70a1ff;
+            margin-top: 5px;
+        }
+
+        #main-content {
+            display: flex;
+            flex: 1;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        #heart-container {
+            flex: 3;
+            position: relative;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 107, 129, 0.3);
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        #controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(112, 161, 255, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            max-width: 350px;
+            backdrop-filter: blur(5px);
+        }
+
+        .control-section {
+            background: rgba(30, 55, 153, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 107, 129, 0.2);
+        }
+
+        h2 {
+            color: #ffa502;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            border-bottom: 2px solid #ffa502;
+            padding-bottom: 5px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #70a1ff;
+            font-weight: 500;
+        }
+
+        select, button {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #3742fa;
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select:hover, button:hover {
+            background: rgba(55, 66, 250, 0.3);
+            border-color: #ff6b81;
+        }
+
+        button {
+            background: linear-gradient(45deg, #ff4757, #ff6b81);
+            border: none;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #ff3838, #ff5252);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 129, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .slider-container {
+            margin: 20px 0;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #ff6b81;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid white;
+        }
+
+        .info-display {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border-left: 4px solid #ffa502;
+        }
+
+        .info-display p {
+            margin: 5px 0;
+            color: #dfe4ea;
+        }
+
+        .heart-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: rgba(255, 107, 129, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            border: 1px solid rgba(255, 107, 129, 0.3);
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ff6b81;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #70a1ff;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #70a1ff;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 107, 129, 0.3);
+        }
+
+        .loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.2rem;
+            color: #ff6b81;
+        }
+
+        @media (max-width: 1200px) {
+            #main-content {
+                flex-direction: column;
+            }
+            
+            #controls-panel {
+                max-width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            
+            .control-section {
+                flex: 1;
+                min-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <header>
+            <h1>3D Human Heart Model</h1>
+            <p class="subtitle">Interactive & Functional Cardiac Visualization</p>
+        </header>
+        
+        <div id="main-content">
+            <div id="heart-container">
+                <div id="canvas-container"></div>
+                <div id="loader" class="loader">Loading 3D Heart Model...</div>
+            </div>
+            
+            <div id="controls-panel">
+                <div class="control-section">
+                    <h2>View Controls</h2>
+                    <div class="control-group">
+                        <label>Camera View</label>
+                        <select id="camera-view">
+                            <option value="full">Full Heart</option>
+                            <option value="front">Anterior View</option>
+                            <option value="back">Posterior View</option>
+                            <option value="top">Superior View</option>
+                            <option value="cutaway">Cross Section</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Rotation Speed</label>
+                        <input type="range" id="rotation-speed" min="0" max="100" value="50">
+                    </div>
+                    <button id="reset-view">Reset View</button>
+                </div>
+                
+                <div class="control-section">
+                    <h2>Heart Layers</h2>
+                    <div class="control-group">
+                        <label>Show/Hide Layers</label>
+                        <select id="layer-control">
+                            <option value="all">All Layers</option>
+                            <option value="epicardium">Epicardium Only</option>
+                            <option value="myocardium">Myocardium Only</option>
+                            <option value="endocardium">Endocardium Only</option>
+                            <option value="chambers">Chambers Only</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Transparency</label>
+                        <input type="range" id="transparency" min="0" max="100" value="0">
+                    </div>
+                </div>
+                
+                <div class="control-section">
+                    <h2>Function Simulation</h2>
+                    <div class="control-group">
+                        <button id="start-beat">Start Heartbeat</button>
+                        <button id="stop-beat">Stop Heartbeat</button>
+                        <button id="blood-flow">Show Blood Flow</button>
+                    </div>
+                    <div class="info-display">
+                        <p>Cardiac Cycle: <span id="cycle-phase">Diastole</span></p>
+                        <p>Heart Rate: <span id="heart-rate">75</span> BPM</p>
+                    </div>
+                </div>
+                
+                <div class="control-section">
+                    <h2>Heart Statistics</h2>
+                    <div class="heart-stats">
+                        <div class="stat-box">
+                            <div class="stat-value" id="stroke-volume">70</div>
+                            <div class="stat-label">Stroke Volume (ml)</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="cardiac-output">5.25</div>
+                            <div class="stat-label">Cardiac Output (L/min)</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="blood-pressure">120/80</div>
+                            <div class="stat-label">Blood Pressure</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="oxygen-sat">98</div>
+                            <div class="stat-label">O₂ Saturation (%)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>3D Human Heart Model | Medical Visualization System | CD Quality Render</p>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/stats.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/MTLLoader.min.js"></script>
+</body>
+</html>
